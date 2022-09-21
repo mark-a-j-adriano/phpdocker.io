@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Form\Generator;
 
+use App\Form\Generator\AbstractGeneratorType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -15,6 +17,10 @@ final class GlobalOptionsType extends AbstractGeneratorType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('appleM1Chip', CheckboxType::class, [
+                'label'    => 'Are you using M1 chip (Mac)',
+                'required' => false,
+            ])
             ->add('basePort', IntegerType::class, [
                 'label'       => 'Base port',
                 'attr'        => ['placeholder' => 'For nginx, Mailhog control panel...'],
