@@ -37,8 +37,6 @@ use Twig\Environment;
  */
 class Generator
 {
-    private const BASE_ZIP_FOLDER  = 'phpdocker';
-    private const ARCHIVE_FILENAME = 'phpdocker.zip';
 
     public function __construct(
         private Archiver $archiver,
@@ -46,7 +44,6 @@ class Generator
         private MarkdownExtra $markdownExtra,
         private Dumper $yaml,
     ) {
-        $this->archiver->setBaseFolder(self::BASE_ZIP_FOLDER);
     }
 
     /**
@@ -65,6 +62,18 @@ class Generator
             ->addFile(new NginxConf($this->twig, $project))
             ->addFile(new DockerCompose($this->yaml, $project, $phpIni->getFilename()), true);
 
-        return $this->archiver->generateArchive(self::ARCHIVE_FILENAME);
+        $this->archiver->setBaseFolder($this->getZipFolder($project));
+
+        return $this->archiver->generateArchive($this->getArchiveName($project));
+    }
+
+    public function getZipFolder(Project $project): string
+    {
+        return $project->getGlobalOptions()->getProjectName();
+    }
+
+    public function getArchiveName(Project $project): string
+    {
+        return sprintf('%s.zip', $project->getGlobalOptions()->getProjectName());
     }
 }

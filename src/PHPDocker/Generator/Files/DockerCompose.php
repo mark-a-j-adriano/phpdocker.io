@@ -30,6 +30,7 @@ class DockerCompose implements GeneratedFileInterface
     /** @var array<string, mixed> */
     private array  $services;
     private string $defaultVolume;
+    private string $projectName;
     private int    $basePort;
 
     public function __construct(private Dumper $yaml, private Project $project, private string $phpIniLocation)
@@ -42,16 +43,12 @@ class DockerCompose implements GeneratedFileInterface
         $workingDir = $this->project->getGlobalOptions();
 
         $this->defaultVolume = sprintf('%s:%s', $workingDir->getAppPath(), $workingDir->getDockerWorkingDir());
+        $this->projectName =  strtolower($this->project->getGlobalOptions()->getProjectName());
 
         $this
-            ->addMemcached()
             ->addMailhog()
-            ->addRedis()
             ->addMysql()
-            ->addMariadb()
-            ->addPostgres()
             ->addElasticsearch()
-            ->addClickhouse()
             ->addWebserver()
             ->addPhpFpm();
 
@@ -68,21 +65,13 @@ class DockerCompose implements GeneratedFileInterface
         return 'docker-compose.yml';
     }
 
-    private function addMemcached(): self
-    {
-        if ($this->project->hasMemcached() === true) {
-            $this->services['memcached'] = ['image' => 'memcached:alpine'];
-        }
-
-        return $this;
-    }
-
     private function addMailhog(): self
     {
         if ($this->project->hasMailhog() === true) {
+            $serviceName = sprintf('%s-mailhog', $this->projectName);
             $extPort = $this->project->getMailhogOptions()->getExternalPort($this->basePort);
 
-            $this->services['mailhog'] = [
+            $this->services[$serviceName] = [
                 'image' => 'mailhog/mailhog:latest',
                 'ports' => [sprintf('%s:8025', $extPort)],
             ];
@@ -91,22 +80,14 @@ class DockerCompose implements GeneratedFileInterface
         return $this;
     }
 
-    private function addRedis(): self
-    {
-        if ($this->project->hasRedis() === true) {
-            $this->services['redis'] = ['image' => 'redis:alpine'];
-        }
-
-        return $this;
-    }
-
     private function addMysql(): self
     {
         if ($this->project->hasMysql() === true) {
+            $serviceName = sprintf('%s-mysql', $this->projectName);
             $mysql   = $this->project->getMysqlOptions();
             $extPort = $mysql->getExternalPort($this->basePort);
 
-            $this->services['mysql'] = [
+            $this->services[$serviceName] = [
                 'image'       => sprintf('mysql:%s', $mysql->getVersion()),
                 'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
                 'volumes'     => [$this->defaultVolume],
@@ -123,55 +104,11 @@ class DockerCompose implements GeneratedFileInterface
         return $this;
     }
 
-    private function addMariadb(): self
-    {
-        if ($this->project->hasMariadb() === true) {
-            $mariadb = $this->project->getMariadbOptions();
-            $extPort = $mariadb->getExternalPort($this->basePort);
-
-            $this->services['mariadb'] = [
-                'image'       => sprintf('mariadb:%s', $mariadb->getVersion()),
-                'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
-                'volumes'     => [$this->defaultVolume],
-                'environment' => [
-                    sprintf('MYSQL_ROOT_PASSWORD=%s', $mariadb->getRootPassword()),
-                    sprintf('MYSQL_DATABASE=%s', $mariadb->getDatabaseName()),
-                    sprintf('MYSQL_USER=%s', $mariadb->getUsername()),
-                    sprintf('MYSQL_PASSWORD=%s', $mariadb->getPassword()),
-                ],
-                'ports'       => [sprintf('%s:3306', $extPort)],
-            ];
-        }
-
-        return $this;
-    }
-
-    private function addPostgres(): self
-    {
-        if ($this->project->hasPostgres() === true) {
-            $postgres = $this->project->getPostgresOptions();
-            $extPort  = $postgres->getExternalPort($this->basePort);
-
-            $this->services['postgres'] = [
-                'image'       => sprintf('postgres:%s-alpine', $postgres->getVersion()),
-                'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
-                'volumes'     => [$this->defaultVolume],
-                'environment' => [
-                    sprintf('POSTGRES_USER=%s', $postgres->getRootUser()),
-                    sprintf('POSTGRES_PASSWORD=%s', $postgres->getRootPassword()),
-                    sprintf('POSTGRES_DB=%s', $postgres->getDatabaseName()),
-                ],
-                'ports'       => [sprintf('%s:5432', $extPort)],
-            ];
-        }
-
-        return $this;
-    }
-
     private function addElasticsearch(): self
     {
         if ($this->project->hasElasticsearch() === true) {
-            $this->services['elasticsearch'] = [
+            $serviceName = sprintf('%s-elasticsearch', $this->projectName);
+            $this->services[$serviceName] = [
                 'image' => sprintf('elasticsearch:%s', $this->project->getElasticsearchOptions()->getVersion()),
             ];
         }
@@ -179,18 +116,10 @@ class DockerCompose implements GeneratedFileInterface
         return $this;
     }
 
-    private function addClickhouse(): self
-    {
-        if ($this->project->hasMemcached() === true) {
-            $this->services['clickhouse'] = ['image' => 'yandex/clickhouse-server:latest'];
-        }
-
-        return $this;
-    }
-
     private function addWebserver(): self
     {
-        $this->services['webserver'] = [
+        $serviceName = sprintf('%s-webserver', $this->projectName);
+        $this->services[$serviceName] = [
             'image'       => 'nginx:alpine',
             'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
             'volumes'     => [
@@ -206,8 +135,9 @@ class DockerCompose implements GeneratedFileInterface
     private function addPhpFpm(): self
     {
         $shortVersion = str_replace(search: '.x', replace: '', subject: $this->project->getPhpOptions()->getVersion());
+        $serviceName = sprintf('%s-php-fpm', $this->projectName);
 
-        $this->services['php-fpm'] = [
+        $this->services[$serviceName] = [
             'build'       => 'phpdocker/php-fpm',
             'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
             'volumes'     => [

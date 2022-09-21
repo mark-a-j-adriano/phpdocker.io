@@ -93,6 +93,8 @@ class GeneratorController extends AbstractController
             basePort: $globalOptionsData['basePort'],
             appPath: rtrim($globalOptionsData['appPath'], '/'),
             dockerWorkingDir: rtrim($globalOptionsData['dockerWorkingDir'], '/'),
+            projectName:  $globalOptionsData['projectName'],
+            appleM1Chip:  $globalOptionsData['appleM1Chip'],
         );
 
         $project = new Project(
