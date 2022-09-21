@@ -11,7 +11,8 @@ final class GlobalOptions extends Base
         private string $appPath,
         private string $dockerWorkingDir,
         private string $projectName,
-        private bool $appleM1Chip
+        private bool $appleM1Chip,
+        private int $nfsVersion
     ){
     }
 
@@ -38,5 +39,10 @@ final class GlobalOptions extends Base
     public function getAppleM1Chip(): bool
     {
         return $this->appleM1Chip;
+    }
+
+    public function getNFSVersion(): int
+    {
+        return $this->nfsVersion;
     }
 }

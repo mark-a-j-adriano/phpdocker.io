@@ -50,24 +50,24 @@
             <div class="{{ formGroupClass }} {{ bigColumn }}">
                 <h3>Global configuration</h3>
                 <div class="row">
-                    {% for field in ['appleM1Chip', 'basePort', 'projectName', 'appPath', 'dockerWorkingDir'] %}
-                        <div class="col {{ tripleColumn }}"
+                    {% for field in ['appleM1Chip', 'basePort', 'projectName', 'nfsVersion','appPath', 'dockerWorkingDir'] %}
+                        <div class="col {{ quarterColumn }}"
                              id="container_for_{{ field }}">{{ form_row(attribute(form.globalOptions, field)) }}
                         </div>
                     {% endfor %}
                 </div>
                 <div class="row">
-                    <div class="col col-lg-3 col-md-3">
+                    <div class="col  {{ quarterColumn }}">
                         <div class="note">Only change value if you are using Mac with Apple Chip (m1)</div>
                     </div>
-                    <div class="col col-lg-3 col-md-3">
+                    <div class="col  {{ quarterColumn }}">
                         <div class="note">Initial port for services exposed from docker to your machine</div>
                     </div>
-                    <div class="col col-lg-3 col-md-3">
-                        <div class="note">Location of your app's source code relative to docker-compose.yaml</div>
+                    <div class="col  {{ quarterColumn }}">
+                        <div class="note">Will be the name of docker folder + services</div>
                     </div>
-                    <div class="col col-lg-3 col-md-3">
-                        <div class="note">Working directory for all containers</div>
+                    <div class="col  {{ quarterColumn }}">
+                        <div class="note">Docker NFS mount (enable value: 3 or 4)</div>
                     </div>
                 </div>
             </div>

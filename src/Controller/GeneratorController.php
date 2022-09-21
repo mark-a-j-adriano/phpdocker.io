@@ -95,6 +95,7 @@ class GeneratorController extends AbstractController
             dockerWorkingDir: rtrim($globalOptionsData['dockerWorkingDir'], '/'),
             projectName:  $globalOptionsData['projectName'],
             appleM1Chip:  $globalOptionsData['appleM1Chip'],
+            nfsVersion: $globalOptionsData['nfsVersion'],
         );
 
         $project = new Project(

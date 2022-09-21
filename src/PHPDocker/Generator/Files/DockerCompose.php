@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * Copyright 2021 Luis Alberto Pabón Flores
@@ -29,13 +30,18 @@ class DockerCompose implements GeneratedFileInterface
 
     /** @var array<string, mixed> */
     private array  $services;
+    private array  $networks;
+    private array $volumes;
     private string $defaultVolume;
+    private bool $isM1Chip;
     private string $projectName;
     private int    $basePort;
 
     public function __construct(private Dumper $yaml, private Project $project, private string $phpIniLocation)
     {
         $this->basePort = $this->project->getGlobalOptions()->getBasePort();
+        $this->projectName =  strtolower($this->project->getGlobalOptions()->getProjectName());
+        $this->isM1Chip = $this->project->getGlobalOptions()->getAppleM1Chip();
     }
 
     public function getContents(): string
@@ -43,8 +49,9 @@ class DockerCompose implements GeneratedFileInterface
         $workingDir = $this->project->getGlobalOptions();
 
         $this->defaultVolume = sprintf('%s:%s', $workingDir->getAppPath(), $workingDir->getDockerWorkingDir());
-        $this->projectName =  strtolower($this->project->getGlobalOptions()->getProjectName());
 
+
+        // Build the Services
         $this
             ->addMailhog()
             ->addMysql()
@@ -52,9 +59,17 @@ class DockerCompose implements GeneratedFileInterface
             ->addWebserver()
             ->addPhpFpm();
 
+        // Add Network
+        $this->addNetwork();
+
+        // Add Volumes
+        $this->addVolumes();
+
         $data = [
             'version'  => self::DOCKER_COMPOSE_FILE_VERSION,
             'services' => $this->services,
+            'networks' => $this->networks,
+            'volumes' => $this->volumes,
         ];
 
         return $this->tidyYaml($this->yaml->dump(input: $data, inline: 4));
@@ -65,6 +80,51 @@ class DockerCompose implements GeneratedFileInterface
         return 'docker-compose.yml';
     }
 
+    private function addNetwork(): self
+    {
+        $this->networks[$this->projectName] = [
+            'driver' => 'bridge'
+        ];
+
+        return $this;
+    }
+
+    private function addVolumes(): self
+    {
+        if ($this->project->hasMysql() === true) {
+            $this->volumes[sprintf('%s-mysql-data', $this->projectName)] = [
+                'driver' => 'local'
+            ];
+        }
+
+        if ($this->project->hasElasticsearch() === true) {
+            $this->volumes[sprintf('%s-elasticsearch-data', $this->projectName)] = [
+                'driver' => 'local'
+            ];
+
+            $this->volumes[sprintf('%s-enterprisesearch-data', $this->projectName)] = [
+                'driver' => 'local'
+            ];
+        }
+
+        if ($this->project->getGlobalOptions()->getNFSVersion() > 0) {
+            $this->volumes[sprintf('%s-www-nfsmount', $this->projectName)] = [
+                'driver' => 'local',
+                'driver_opts' => [
+                    'type' => 'nfs',
+                    'o' => sprintf('addr=host.docker.internal,rw,nolock,hard,nointr,nfsvers=%s', $this->project->getGlobalOptions()->getNFSVersion()),
+                    'device' => ':${PWD}'
+                ]
+            ];
+        }else {
+            $this->volumes[sprintf('%s-www-data', $this->projectName)] = [
+                'driver' => 'local'
+            ];
+        }
+
+        return $this;
+    }
+
     private function addMailhog(): self
     {
         if ($this->project->hasMailhog() === true) {
@@ -73,8 +133,18 @@ class DockerCompose implements GeneratedFileInterface
 
             $this->services[$serviceName] = [
                 'image' => 'mailhog/mailhog:latest',
-                'ports' => [sprintf('%s:8025', $extPort)],
+                'container_name' => $serviceName,
+                'ports' => [
+                    sprintf('%s:8025', $extPort)
+                ],
+                'networks'  => [
+                    $this->projectName
+                ]
             ];
+        }
+
+        if ($this->isM1Chip) {
+            $this->services[$serviceName] += ['platform' => 'linux/amd64'];
         }
 
         return $this;
@@ -89,6 +159,7 @@ class DockerCompose implements GeneratedFileInterface
 
             $this->services[$serviceName] = [
                 'image'       => sprintf('mysql:%s', $mysql->getVersion()),
+                'container_name' => $serviceName,
                 'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
                 'volumes'     => [$this->defaultVolume],
                 'environment' => [
@@ -98,7 +169,14 @@ class DockerCompose implements GeneratedFileInterface
                     sprintf('MYSQL_PASSWORD=%s', $mysql->getPassword()),
                 ],
                 'ports'       => [sprintf('%s:3306', $extPort)],
+                'networks'  => [
+                    $this->projectName
+                ]
             ];
+        }
+
+        if ($this->isM1Chip) {
+            $this->services[$serviceName] += ['platform' => 'linux/amd64'];
         }
 
         return $this;
@@ -108,9 +186,63 @@ class DockerCompose implements GeneratedFileInterface
     {
         if ($this->project->hasElasticsearch() === true) {
             $serviceName = sprintf('%s-elasticsearch', $this->projectName);
+            $volumneName = sprintf('%s-elasticsearch-data', $this->projectName);
             $this->services[$serviceName] = [
-                'image' => sprintf('elasticsearch:%s', $this->project->getElasticsearchOptions()->getVersion()),
+                'image' => sprintf('docker.elastic.co/elasticsearch/elasticsearch:%s', $this->project->getElasticsearchOptions()->getVersion()),
+                'container_name' => $serviceName,
+                'networks'  => [
+                    $this->projectName
+                ],
+                'volumes' => [
+                    sprintf('%s-elasticsearch-data: /usr/share/elasticsearch/data', $this->projectName)
+                ],
+                'ports' => [
+                    '9200:9200',
+                    '9300:9300',
+                ],
+                'environment' => [
+                    "'ES_JAVA_OPTS=-Xms1g -Xmx1g'",
+                    'discovery.type=single-node',
+                    'node.name=es101',
+                    'cluster.name=es-docker-cluster',
+                ],
+                'depends_on' => [
+                    sprintf('%s-www', $this->projectName)
+                ]
             ];
+
+            if ($this->isM1Chip) {
+                $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+            }
+
+            $serviceName = sprintf('%s-enterprisesearch', $this->projectName);
+            $this->services[$serviceName] = [
+                'image' => sprintf('docker.elastic.co/enterprise-search/enterprise-search:%s', $this->project->getElasticsearchOptions()->getVersion()),
+                'container_name' => $serviceName,
+                'networks'  => [
+                    $this->projectName
+                ],
+                'volumes' => [
+                    sprintf('%s-enterprisesearch-data: /usr/share/enterprisesearch/data', $this->projectName)
+                ],
+                'ports' => [
+                    '3002:3002'
+                ],
+                'environment' => [
+                    'allow_es_settings_modification=true',
+                    sprintf("elasticsearch.host='http://%s-elasticsearch:9200'", $this->projectName),
+                    'elasticsearch.username=elastic',
+                    'elasticsearch.password=changeme',
+                    'secret_management.encryption_keys=[4a2cd3f81d39bf28738c10db0ca782095ffac07279561809eecc722e0c20eb09]',
+                ],
+                'depends_on' => [
+                    sprintf('%s-elasticsearch', $this->projectName)
+                ]
+            ];
+
+            if ($this->isM1Chip) {
+                $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+            }
         }
 
         return $this;
@@ -121,13 +253,21 @@ class DockerCompose implements GeneratedFileInterface
         $serviceName = sprintf('%s-webserver', $this->projectName);
         $this->services[$serviceName] = [
             'image'       => 'nginx:alpine',
+            'container_name' => $serviceName,
             'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
             'volumes'     => [
                 $this->defaultVolume,
                 './phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf',
             ],
             'ports'       => [sprintf('%s:80', $this->basePort)],
+            'networks'  => [
+                $this->projectName
+            ]
         ];
+
+        if ($this->isM1Chip) {
+            $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+        }
 
         return $this;
     }
@@ -139,12 +279,20 @@ class DockerCompose implements GeneratedFileInterface
 
         $this->services[$serviceName] = [
             'build'       => 'phpdocker/php-fpm',
+            'container_name' => $serviceName,
             'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
             'volumes'     => [
                 $this->defaultVolume,
                 sprintf('./phpdocker/%s:/etc/php/%s/fpm/conf.d/99-overrides.ini', $this->phpIniLocation, $shortVersion),
             ],
+            'networks'  => [
+                $this->projectName
+            ]
         ];
+
+        if ($this->isM1Chip) {
+            $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+        }
 
         return $this;
     }

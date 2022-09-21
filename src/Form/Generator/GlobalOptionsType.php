@@ -6,6 +6,7 @@ namespace App\Form\Generator;
 
 use App\Form\Generator\AbstractGeneratorType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -37,6 +38,15 @@ final class GlobalOptionsType extends AbstractGeneratorType
                 'label' => 'Enter project name',
                 'attr'  => ['placeholder' => 'One Ring'],
                 'data'  => 'SSmysite',
+            ])
+            ->add('nfsVersion', ChoiceType::class, [
+                'label'       => 'NFS Mount version',
+                'data'        => 0,
+                'choices'  => [
+                    '0' => null,
+                    'v3' => 3,
+                    'v4' => 4,
+                ],
             ])
             ->add('appPath', HiddenType::class, [
                 'data' => '.',
