@@ -1,10 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Form\Generator;
 
 use App\Form\Generator\AbstractGeneratorType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -24,21 +26,23 @@ final class GlobalOptionsType extends AbstractGeneratorType
             ->add('basePort', IntegerType::class, [
                 'label'       => 'Base port',
                 'attr'        => ['placeholder' => 'For nginx, Mailhog control panel...'],
-                'data'        => random_int(min: 2, max: 65) * 1000,
+                'data'        => 8081,
                 'constraints' => [
                     new NotBlank(),
                     new Type(type: 'integer'),
                     new Range(min: 1025, max: 65535),
                 ],
             ])
-            ->add('appPath', TextType::class, [
-                'label' => 'Your source code\'s path',
-                'data'  => '.',
+            ->add('projectName', TextType::class, [
+                'label' => 'Enter project name',
+                'attr'  => ['placeholder' => 'One Ring'],
+                'data'  => 'SSmysite',
             ])
-            ->add('dockerWorkingDir', TextType::class, [
-                'label' => 'Containers workdir',
-                'data'  => '/application',
+            ->add('appPath', HiddenType::class, [
+                'data' => '.',
+            ])
+            ->add('dockerWorkingDir', HiddenType::class, [
+                'data' => '/var/www/html',
             ]);
     }
-
 }

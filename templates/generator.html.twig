@@ -8,19 +8,52 @@
 
 {% set bigColumn = 'col col-lg-12 col-md-12 col-sm-12 col-xs-12' %}
 {% set quarterColumn = 'col col-lg-3 col-md-3 col-sm-12 col-xs-12' %}
+{% set tripleColumn = 'col col-lg-4 col-md-4 col-sm-12 col-xs-12' %}
 
 {% block body %}
     <form method="post" id="generator" action="{{ path('generator') }}">
         <div class="row">
             {{ form_errors(form) }}
         </div>
+
+          <div class="row">
+             <div class="{{ formGroupClass }} {{ tripleColumn }}">
+                <h3>MySQL</h3>
+                {{ form_widget(attribute(form.mysqlOptions, 'hasMysql')) }}
+
+                <div id="mysql-options">
+                    {% for field in ['version', 'rootPassword', 'databaseName', 'username', 'password'] %}
+                        {% if (attribute(form.mysqlOptions, field) is defined) %}
+                            <div id="container_for_mysql_{{ field }}">{{ form_row(attribute(form.mysqlOptions, field)) }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="{{ formGroupClass }} {{ tripleColumn }}">
+                <h3>Mailhog</h3>
+                {% if (attribute(form,  'hasMailhog') is defined) %}
+                    <div class="form-group">{{ form_widget(attribute(form,  'hasMailhog')) }}</div>
+                {% endif %}
+            </div>
+
+            <div class="{{ formGroupClass }} {{ tripleColumn }}">
+                <h3>Elasticsearch</h3>
+                {{ form_widget(attribute(form.elasticsearchOptions, 'hasElasticsearch')) }}
+                <div id="elasticsearch-options">
+                    {{ form_row(attribute(form.elasticsearchOptions, 'version')) }}
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="{{ formGroupClass }} {{ bigColumn }}">
                 <h3>Global configuration</h3>
                 <div class="row">
-                    {% for field in ['appleM1Chip', 'basePort', 'appPath', 'dockerWorkingDir'] %}
-                        <div class="col col-lg-3 col-md-3"
-                             id="container_for_{{ field }}">{{ form_row(attribute(form.globalOptions, field)) }}</div>
+                    {% for field in ['appleM1Chip', 'basePort', 'projectName', 'appPath', 'dockerWorkingDir'] %}
+                        <div class="col {{ tripleColumn }}"
+                             id="container_for_{{ field }}">{{ form_row(attribute(form.globalOptions, field)) }}
+                        </div>
                     {% endfor %}
                 </div>
                 <div class="row">
@@ -72,60 +105,7 @@
                 <h3>Zero-config Services</h3>
                 <p class="note">The following services take no additional configuration parameters.</p>
 
-                {% for field in ['hasMemcached', 'hasRedis', 'hasMailhog', 'hasClickhouse'] %}
-                    {% if (attribute(form, field) is defined) %}
-                        <div class="form-group">{{ form_widget(attribute(form, field)) }}</div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="{{ formGroupClass }} {{ quarterColumn }}">
-                <h3>MySQL</h3>
-                {{ form_widget(attribute(form.mysqlOptions, 'hasMysql')) }}
-
-                <div id="mysql-options">
-                    {% for field in ['version', 'rootPassword', 'databaseName', 'username', 'password'] %}
-                        {% if (attribute(form.mysqlOptions, field) is defined) %}
-                            <div id="container_for_mysql_{{ field }}">{{ form_row(attribute(form.mysqlOptions, field)) }}</div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="{{ formGroupClass }} {{ quarterColumn }}">
-                <h3>MariaDB</h3>
-                {{ form_widget(attribute(form.mariadbOptions, 'hasMariadb')) }}
-
-                <div id="mariadb-options">
-                    {% for field in ['version', 'rootPassword', 'databaseName', 'username', 'password'] %}
-                        {% if (attribute(form.mariadbOptions, field) is defined) %}
-                            {{ form_row(attribute(form.mariadbOptions, field)) }}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="{{ formGroupClass }} {{ quarterColumn }}">
-                <h3>Postgres</h3>
-                {{ form_widget(attribute(form.postgresOptions, 'hasPostgres')) }}
-
-                <div id="postgres-options">
-                    {% for field in ['version', 'rootUser', 'rootPassword', 'databaseName'] %}
-                        {% if (attribute(form.postgresOptions, field) is defined) %}
-                            {{ form_row(attribute(form.postgresOptions, field)) }}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="{{ formGroupClass }} {{ quarterColumn }}">
-                <h3>Elasticsearch</h3>
-                {{ form_widget(attribute(form.elasticsearchOptions, 'hasElasticsearch')) }}
-                <div id="elasticsearch-options">
-                    {{ form_row(attribute(form.elasticsearchOptions, 'version')) }}
-                </div>
             </div>
         </div>
 

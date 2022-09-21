@@ -33,21 +33,9 @@ class ProjectType extends AbstractGeneratorType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('hasMemcached', CheckboxType::class, [
-                'required' => false,
-                'label'    => 'Enable Memcached',
-            ])
-            ->add('hasRedis', CheckboxType::class, [
-                'required' => false,
-                'label'    => 'Enable Redis',
-            ])
             ->add('hasMailhog', CheckboxType::class, [
                 'required' => false,
                 'label'    => 'Enable Mailhog',
-            ])
-            ->add('hasClickhouse', CheckboxType::class, [
-                'required' => false,
-                'label'    => 'Enable Clickhouse',
             ])
             ->add('phpOptions', PhpType::class, [
                 'label'       => 'PHP Options',
@@ -55,14 +43,6 @@ class ProjectType extends AbstractGeneratorType
             ])
             ->add('mysqlOptions', MySQLType::class, [
                 'label'       => 'MySQL',
-                'constraints' => new Valid(),
-            ])
-            ->add('mariadbOptions', MariaDBType::class, [
-                'label'       => 'MariaDB',
-                'constraints' => new Valid(),
-            ])
-            ->add('postgresOptions', PostgresType::class, [
-                'label'       => 'Postgres',
                 'constraints' => new Valid(),
             ])
             ->add('elasticsearchOptions', ElasticsearchType::class, [

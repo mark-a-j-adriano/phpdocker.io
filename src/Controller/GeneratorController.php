@@ -100,10 +100,7 @@ class GeneratorController extends AbstractController
             globalOptions: $globalOptions,
         );
 
-        $project->getMemcachedOptions()->setEnabled($formData['hasMemcached']);
-        $project->getRedisOptions()->setEnabled($formData['hasRedis']);
         $project->getMailhogOptions()->setEnabled($formData['hasMailhog']);
-        $project->getClickhouseOptions()->setEnabled($formData['hasClickhouse']);
 
         $mysqlData = $formData['mysqlOptions'];
         if ($mysqlData['hasMysql'] === true) {
@@ -115,29 +112,6 @@ class GeneratorController extends AbstractController
                 ->setRootPassword($mysqlData['rootPassword'])
                 ->setUsername($mysqlData['username'])
                 ->setPassword($mysqlData['password']);
-        }
-
-        $mariaDbData = $formData['mariadbOptions'];
-        if ($mariaDbData['hasMariadb'] === true) {
-            $project
-                ->getMariadbOptions()
-                ->setEnabled(true)
-                ->setVersion($mariaDbData['version'])
-                ->setDatabaseName($mariaDbData['databaseName'])
-                ->setRootPassword($mariaDbData['rootPassword'])
-                ->setUsername($mariaDbData['username'])
-                ->setPassword($mariaDbData['password']);
-        }
-
-        $pgData = $formData['postgresOptions'];
-        if ($pgData['hasPostgres'] === true) {
-            $project
-                ->getPostgresOptions()
-                ->setEnabled(true)
-                ->setVersion($pgData['version'])
-                ->setDatabaseName($pgData['databaseName'])
-                ->setRootUser($pgData['rootUser'])
-                ->setRootPassword($pgData['rootPassword']);
         }
 
         $esData = $formData['elasticsearchOptions'];
