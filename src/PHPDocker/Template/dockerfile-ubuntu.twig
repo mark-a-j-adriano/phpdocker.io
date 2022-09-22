@@ -1,3 +1,5 @@
+# This is the base image coming from DockerHUB
+# Image generated from https://github.com/silverstripeltd/bespoke-docker-base
 FROM markajadriano/ubuntu20-nginx-php8:m1
 
 ARG SITE_URL
@@ -25,7 +27,7 @@ COPY conf/nginx.conf /etc/nginx/sites-available/default
 RUN sed -i "s/local.site/${SITE_URL}/g" /etc/nginx/sites-available/default
 
 # Switch to PHP {{ phpVersion }}
-RUN sudo update-alternatives --set php /usr/bin/php{{ phpVersion }}
+# RUN sudo update-alternatives --set php /usr/bin/php{{ phpVersion }}
 
 WORKDIR "{{ dockerWorkingDir }}"
 

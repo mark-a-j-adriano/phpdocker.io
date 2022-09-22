@@ -38,6 +38,7 @@ class EnvSettings implements GeneratedFileInterface
             'rootPassword'          => $this->project->getMysqlOptions()->getRootPassword(),
             'hasMailhog'            => $this->project->hasMailhog(),
             'hasElasticsearch'      => $this->project->hasElasticsearch(),
+            'basePort'              => $this->project->getGlobalOptions()->getBasePort(),
             'projectName'           => strtolower($this->project->getGlobalOptions()->getProjectName()),
         ];
 

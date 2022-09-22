@@ -27,7 +27,7 @@ final class GlobalOptionsType extends AbstractGeneratorType
             ->add('basePort', IntegerType::class, [
                 'label'       => 'Base port',
                 'attr'        => ['placeholder' => 'For nginx, Mailhog control panel...'],
-                'data'        => 8081,
+                'data'        => 80,
                 'constraints' => [
                     new NotBlank(),
                     new Type(type: 'integer'),

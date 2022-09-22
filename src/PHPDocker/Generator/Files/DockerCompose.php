@@ -167,7 +167,9 @@ class DockerCompose implements GeneratedFileInterface
                     'MYSQL_DATABASE=${SS_DATABASE_NAME}',
                     'TZ=${TZ}',
                 ],
-                'ports'       => [sprintf('%s:3306', $extPort)],
+                'ports'       => [
+                    '${SS_DATABASE_LOCAL_PORT}:3306'
+                ],
                 'networks'  => [
                     $this->projectName
                 ]
@@ -261,6 +263,11 @@ class DockerCompose implements GeneratedFileInterface
             ],
             'networks'  => [
                 $this->projectName
+            ],
+            'ports' => [
+                '${WWW_HTTP_PORT}:80',
+                '${WWW_HTTPS_PORT}:443',
+                '8983:8983',
             ]
         ];
 

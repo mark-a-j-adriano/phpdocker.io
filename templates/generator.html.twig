@@ -21,24 +21,28 @@
             <div class="{{ formGroupClass }} {{ bigColumn }}">
                 <h3>Global configuration</h3>
                 <div class="row">
-                    {% for field in ['appleM1Chip', 'basePort', 'projectName', 'nfsVersion','appPath', 'dockerWorkingDir'] %}
-                        <div class="col {{ quarterColumn }}"
+                    {% for field in ['appPath', 'dockerWorkingDir'] %}
+                        <div class="col {{ halfColumn }}"
                              id="container_for_{{ field }}">{{ form_row(attribute(form.globalOptions, field)) }}
                         </div>
                     {% endfor %}
                 </div>
                 <div class="row">
-                    <div class="col  {{ quarterColumn }}">
-                        <div class="note">Only change value if you are using Mac with Apple Chip (m1)</div>
+                    <div class="col  {{ halfColumn }}">
+                        <div id="container_for_{{ 'appleM1Chip' }}">{{ form_row(attribute(form.globalOptions, 'appleM1Chip')) }}</div>
+                        <div class="note">Only change value if you are using Mac with Apple Chip (m1)</div> <br/>
                     </div>
-                    <div class="col  {{ quarterColumn }}">
-                        <div class="note">Initial port for services exposed from docker to your machine</div>
+                    <div class="col  {{ halfColumn }}">
+                        <div id="container_for_{{ 'basePort' }}">{{ form_row(attribute(form.globalOptions, 'basePort')) }}</div>
+                        <div class="note">Initial port for services exposed from docker to your machine</div> <br/>
                     </div>
-                    <div class="col  {{ quarterColumn }}">
-                        <div class="note">Will be the name of docker folder + services</div>
+                    <div class="col  {{ halfColumn }}">
+                        <div id="container_for_{{ 'projectName' }}">{{ form_row(attribute(form.globalOptions, 'projectName')) }}</div>
+                        <div class="note">Will be the name of docker folder + services</div> <br/>
                     </div>
-                    <div class="col  {{ quarterColumn }}">
-                        <div class="note">Docker NFS mount (enable value: 3 or 4)</div>
+                    <div class="col  {{ halfColumn }}">
+                        <div id="container_for_{{ 'nfsVersion' }}">{{ form_row(attribute(form.globalOptions, 'nfsVersion')) }}</div>
+                        <div class="note">Docker NFS mount (enable value: 3 or 4)</div> <br/>
                     </div>
                 </div>
             </div>
@@ -89,17 +93,12 @@
          <div class="row">
             <div class="{{ formGroupClass }} {{ halfColumn }}">
                 <h3>Mailhog</h3>
-                {% if (attribute(form,  'hasMailhog') is defined) %}
-                    <div class="form-group">{{ form_widget(attribute(form,  'hasMailhog')) }}</div>
-                {% endif %}
+                {{ form_widget(attribute(form,  'hasMailhog')) }}
             </div>
 
             <div class="{{ formGroupClass }} {{ halfColumn }}">
                 <h3>Elasticsearch</h3>
                 {{ form_widget(attribute(form.elasticsearchOptions, 'hasElasticsearch')) }}
-                <div id="elasticsearch-options">
-                    {{ form_row(attribute(form.elasticsearchOptions, 'version')) }}
-                </div>
             </div>
         </div>
 

@@ -18,13 +18,9 @@ declare(strict_types=1);
 
 namespace App\Form\Generator;
 
-use App\PHPDocker\Project\ServiceOptions\Elasticsearch;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * Class ElasticsearchType
@@ -42,16 +38,6 @@ class ElasticsearchType extends AbstractGeneratorType
             ->add('hasElasticsearch', CheckboxType::class, [
                 'label'    => 'Enable Elasticsearch',
                 'required' => false,
-            ])
-            ->add('version', ChoiceType::class, [
-                'choices'     => array_flip(Elasticsearch::getChoices()),
-                'expanded'    => false,
-                'multiple'    => false,
-                'label'       => 'Version',
-                'constraints' => [
-                    new NotBlank(groups: [self::VALIDATION_GROUP]),
-                    new Length(min: 1, max: 128),
-                ],
             ]);
     }
 
