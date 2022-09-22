@@ -46,10 +46,12 @@ class DockerCompose implements GeneratedFileInterface
 
     public function getContents(): string
     {
-        $workingDir = $this->project->getGlobalOptions();
 
-        $this->defaultVolume = sprintf('%s:%s', $workingDir->getAppPath(), $workingDir->getDockerWorkingDir());
+        // Add Volumes
+        $this->addVolumes();
 
+        // Add Network
+        $this->addNetwork();
 
         // Build the Services
         $this
@@ -58,11 +60,8 @@ class DockerCompose implements GeneratedFileInterface
             ->addElasticsearch()
             ->addUbuntuServer();
 
-        // Add Network
-        $this->addNetwork();
 
-        // Add Volumes
-        $this->addVolumes();
+
 
         $data = [
             'version'  => self::DOCKER_COMPOSE_FILE_VERSION,
@@ -106,7 +105,10 @@ class DockerCompose implements GeneratedFileInterface
             ];
         }
 
+        $workingDir = $this->project->getGlobalOptions();
+
         if ($this->project->getGlobalOptions()->getNFSVersion() > 0) {
+            $this->defaultVolume = sprintf('%s-www-nfsmount:%s', $this->projectName, $workingDir->getDockerWorkingDir());
             $this->volumes[sprintf('%s-www-nfsmount', $this->projectName)] = [
                 'driver' => 'local',
                 'driver_opts' => [
@@ -116,6 +118,7 @@ class DockerCompose implements GeneratedFileInterface
                 ]
             ];
         }else {
+            $this->defaultVolume = sprintf('%s:%s', $workingDir->getAppPath(), $workingDir->getDockerWorkingDir());
             $this->volumes[sprintf('%s-www-data', $this->projectName)] = [
                 'driver' => 'local'
             ];
@@ -134,7 +137,8 @@ class DockerCompose implements GeneratedFileInterface
                 'image' => 'mailhog/mailhog:latest',
                 'container_name' => $serviceName,
                 'ports' => [
-                    sprintf('%s:8025', $extPort)
+                    '1025:1025',
+                    '${DEV_MAILER_PORT}:8025',
                 ],
                 'networks'  => [
                     $this->projectName
@@ -162,10 +166,9 @@ class DockerCompose implements GeneratedFileInterface
                 'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
                 'volumes'     => [$this->defaultVolume],
                 'environment' => [
-                    sprintf('MYSQL_ROOT_PASSWORD=%s', $mysql->getRootPassword()),
-                    sprintf('MYSQL_DATABASE=%s', $mysql->getDatabaseName()),
-                    sprintf('MYSQL_USER=%s', $mysql->getUsername()),
-                    sprintf('MYSQL_PASSWORD=%s', $mysql->getPassword()),
+                    'MYSQL_ROOT_PASSWORD=${SS_DATABASE_ROOT_PASSWORD}',
+                    'MYSQL_DATABASE=${SS_DATABASE_NAME}',
+                    'TZ=${TZ}',
                 ],
                 'ports'       => [sprintf('%s:3306', $extPort)],
                 'networks'  => [
@@ -200,7 +203,7 @@ class DockerCompose implements GeneratedFileInterface
                     '9300:9300',
                 ],
                 'environment' => [
-                    "'ES_JAVA_OPTS=-Xms1g -Xmx1g'",
+                    'ES_JAVA_OPTS=-Xms1g -Xmx1g',
                     'discovery.type=single-node',
                     'node.name=es101',
                     'cluster.name=es-docker-cluster',
@@ -253,12 +256,11 @@ class DockerCompose implements GeneratedFileInterface
         $serviceName = sprintf('%s-www', $this->projectName);
 
         $this->services[$serviceName] = [
-            'build'       => '.docker/php-fpm',
+            'build'       => '.docker',
             'container_name' => $serviceName,
             'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
             'volumes'     => [
                 $this->defaultVolume,
-                sprintf('./.docker/%s:/etc/php/%s/fpm/conf.d/99-overrides.ini', $this->phpIniLocation, $shortVersion),
             ],
             'networks'  => [
                 $this->projectName

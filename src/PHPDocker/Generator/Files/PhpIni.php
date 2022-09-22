@@ -38,7 +38,7 @@ class PhpIni implements GeneratedFileInterface
     public function getFilename(): string
     {
         return  sprintf(
-            '.docker%sphp%sphp-ini-overrides.ini',
+            '.docker%conf%sphp-ini-overrides.ini',
             DIRECTORY_SEPARATOR,
             DIRECTORY_SEPARATOR
         );

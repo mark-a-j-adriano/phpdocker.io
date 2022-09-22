@@ -23,7 +23,7 @@ use App\PHPDocker\Interfaces\GeneratedFileInterface;
 use App\PHPDocker\Project\Project;
 use Twig\Environment;
 
-class Dockerfile implements GeneratedFileInterface
+class SSLConf implements GeneratedFileInterface
 {
     public function __construct(private Environment $twig, private Project $project)
     {
@@ -31,31 +31,22 @@ class Dockerfile implements GeneratedFileInterface
 
     public function getContents(): string
     {
-        $phpOptions = $this->project->getPhpOptions();
-        $packages   = [];
-
-        if ($this->project->getPhpOptions()->hasGit() === true) {
-            $packages[] = 'git';
-        }
-
-        // Resolve extension packages to install
-        foreach ($phpOptions->getExtensions() as $extension) {
-            $packages = array_merge($packages, $extension->getPackages());
-        }
+        $frontControllerPath = $this->project->getPhpOptions()->getFrontControllerPath();
 
         $data = [
-            'phpVersion'       => $this->project->getPhpOptions()->getVersion(),
-            'packages'         => array_unique($packages),
-            'dockerWorkingDir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
+            'dockerWorkingDir'      => $this->project->getGlobalOptions()->getDockerWorkingDir(),
+            'frontControllerFile'   => basename($frontControllerPath),
+            'frontControllerFolder' => dirname($frontControllerPath),
         ];
 
-        return $this->twig->render('dockerfile-ubuntu.twig', $data);
+        return $this->twig->render('ssl-params.conf.twig', $data);
     }
 
     public function getFilename(): string
     {
         return  sprintf(
-            '.docker%sDockerfile',
+            '.docker%snippets%www.conf',
+            DIRECTORY_SEPARATOR,
             DIRECTORY_SEPARATOR,
         );
     }

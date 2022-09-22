@@ -80,24 +80,16 @@ abstract class AbstractMySQLType extends AbstractGeneratorType
                 'label'       => 'Version',
                 'constraints' => $defaultConstraints,
             ])
-            ->add('rootPassword', TextType::class, [
-                'label'       => false,
-                'attr'        => ['placeholder' => 'Password for root user'],
-                'constraints' => $defaultConstraints,
-            ])
             ->add('databaseName', TextType::class, [
-                'label'       => false,
+                'label'       => 'DB name',
                 'attr'        => ['placeholder' => 'Your app\'s database name'],
+                'data'        => 'SSmysite',
                 'constraints' => $defaultConstraints,
             ])
-            ->add('username', TextType::class, [
-                'label'       => false,
-                'attr'        => ['placeholder' => 'Your app\'s database username'],
-                'constraints' => $defaultConstraints,
-            ])
-            ->add('password', TextType::class, [
-                'label'       => false,
-                'attr'        => ['placeholder' => 'Your app\'s database password'],
+            ->add('rootPassword', TextType::class, [
+                'label'       => 'Password',
+                'attr'        => ['placeholder' => 'Password for root user'],
+                'data'        => 'root',
                 'constraints' => $defaultConstraints,
             ]);
     }

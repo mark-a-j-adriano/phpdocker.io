@@ -25,6 +25,9 @@ use App\PHPDocker\Generator\Files\NginxConf;
 use App\PHPDocker\Generator\Files\PhpIni;
 use App\PHPDocker\Generator\Files\ReadmeHtml;
 use App\PHPDocker\Generator\Files\ReadmeMd;
+use App\PHPDocker\Generator\Files\SSLConf;
+use App\PHPDocker\Generator\Files\SelfSignedConf;
+use App\PHPDocker\Generator\Files\WebConf;
 use App\PHPDocker\Interfaces\ArchiveInterface;
 use App\PHPDocker\Project\Project;
 use App\PHPDocker\Zip\Archiver;
@@ -60,6 +63,9 @@ class Generator
             ->addFile(new Dockerfile($this->twig, $project))
             ->addFile($phpIni)
             ->addFile(new NginxConf($this->twig, $project))
+            ->addFile(new SSLConf($this->twig, $project))
+            ->addFile(new SelfSignedConf($this->twig, $project))
+            ->addFile(new WebConf($this->twig, $project))
             ->addFile(new DockerCompose($this->yaml, $project, $phpIni->getFilename()), true);
 
         $this->archiver->setBaseFolder($this->getZipFolder($project));
