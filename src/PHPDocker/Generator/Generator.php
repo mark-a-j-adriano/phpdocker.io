@@ -65,7 +65,6 @@ class Generator
             ->addFile($readmeMd)
             ->addFile(new ReadmeHtml($this->twig, $this->markdownExtra, $readmeMd->getContents()))
             ->addFile(new Dockerfile($this->twig, $project))
-            ->addFile($phpIni)
             ->addFile(new NginxConf($this->twig, $project))
             ->addFile(new SSLConf($this->twig, $project))
             ->addFile(new SelfSignedConf($this->twig, $project))
