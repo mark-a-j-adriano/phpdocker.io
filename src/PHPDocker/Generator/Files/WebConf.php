@@ -45,7 +45,7 @@ class WebConf implements GeneratedFileInterface
     public function getFilename(): string
     {
         return  sprintf(
-            '.docker%conf%www.conf',
+            '.docker%sconf%swww.conf',
             DIRECTORY_SEPARATOR,
             DIRECTORY_SEPARATOR,
         );

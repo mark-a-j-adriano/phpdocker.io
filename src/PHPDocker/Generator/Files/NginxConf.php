@@ -45,7 +45,7 @@ class NginxConf implements GeneratedFileInterface
     public function getFilename(): string
     {
         return  sprintf(
-            '.docker%conf%snginx.conf',
+            '.docker%sconf%snginx.conf',
             DIRECTORY_SEPARATOR,
             DIRECTORY_SEPARATOR,
         );

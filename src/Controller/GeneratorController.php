@@ -112,9 +112,7 @@ class GeneratorController extends AbstractController
                 ->setEnabled(true)
                 ->setVersion($mysqlData['version'])
                 ->setDatabaseName($mysqlData['databaseName'])
-                ->setRootPassword($mysqlData['rootPassword'])
-                ->setUsername($mysqlData['username'])
-                ->setPassword($mysqlData['password']);
+                ->setRootPassword($mysqlData['rootPassword']);
         }
 
         $esData = $formData['elasticsearchOptions'];

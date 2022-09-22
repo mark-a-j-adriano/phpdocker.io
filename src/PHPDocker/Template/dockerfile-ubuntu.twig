@@ -23,6 +23,7 @@ COPY snippets/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
 COPY conf/www.conf /etc/php/{{ phpVersion }}/fpm/pool.d/www.conf
 RUN sed -i "s/phpX.Y-fpm.sock/php{{ phpVersion }}-fpm.sock/g" /etc/php/{{ phpVersion }}/fpm/pool.d/www.conf
 
+# Additional NGINX version configuration
 COPY conf/nginx.conf /etc/nginx/sites-available/default
 RUN sed -i "s/local.site/${SITE_URL}/g" /etc/nginx/sites-available/default && \
     sed -i "s/current-working-directory/{{ dockerWorkingDir }}/g" /etc/nginx/sites-available/default && \
