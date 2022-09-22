@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * Copyright 2021 Luis Alberto Pabón Flores
@@ -21,6 +22,9 @@ namespace App\PHPDocker\Generator;
 
 use App\PHPDocker\Generator\Files\DockerCompose;
 use App\PHPDocker\Generator\Files\Dockerfile;
+use App\PHPDocker\Generator\Files\EnvSettings;
+use App\PHPDocker\Generator\Files\GitExclude;
+use App\PHPDocker\Generator\Files\MailConf;
 use App\PHPDocker\Generator\Files\NginxConf;
 use App\PHPDocker\Generator\Files\PhpIni;
 use App\PHPDocker\Generator\Files\ReadmeHtml;
@@ -66,6 +70,9 @@ class Generator
             ->addFile(new SSLConf($this->twig, $project))
             ->addFile(new SelfSignedConf($this->twig, $project))
             ->addFile(new WebConf($this->twig, $project))
+            ->addFile(new EnvSettings($this->twig, $project))
+            ->addFile(new MailConf($this->twig, $project))
+            ->addFile(new GitExclude($this->twig, $project))
             ->addFile(new DockerCompose($this->yaml, $project, $phpIni->getFilename()), true);
 
         $this->archiver->setBaseFolder($this->getZipFolder($project));

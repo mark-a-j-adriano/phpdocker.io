@@ -11,7 +11,7 @@ server {
     include snippets/self-signed.conf;
     include snippets/ssl-params.conf;
 
-    root current-working-directory/public;
+    root {{ dockerWorkingDir }}/public;
 
     index index.html index.htm index.php;
 
@@ -55,7 +55,7 @@ server {
         fastcgi_send_timeout 900;
         fastcgi_read_timeout 900;
 
-        fastcgi_pass unix:/run/php/phpX.Y-fpm.sock;
+        fastcgi_pass unix:/run/php/php{{ phpVersion }}-fpm.sock;
     }
 
     error_page 404 /index.php;

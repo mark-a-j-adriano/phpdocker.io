@@ -45,7 +45,7 @@ class SSLConf implements GeneratedFileInterface
     public function getFilename(): string
     {
         return  sprintf(
-            '.docker%ssnippets%swww.conf',
+            '.docker%ssnippets%sssl-params.conf',
             DIRECTORY_SEPARATOR,
             DIRECTORY_SEPARATOR,
         );

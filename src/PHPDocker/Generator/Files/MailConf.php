@@ -23,7 +23,7 @@ use App\PHPDocker\Interfaces\GeneratedFileInterface;
 use App\PHPDocker\Project\Project;
 use Twig\Environment;
 
-class WebConf implements GeneratedFileInterface
+class MailConf implements GeneratedFileInterface
 {
     public function __construct(private Environment $twig, private Project $project)
     {
@@ -31,20 +31,19 @@ class WebConf implements GeneratedFileInterface
 
     public function getContents(): string
     {
-        $data = [
-            'dockerWorkingDir'      => $this->project->getGlobalOptions()->getDockerWorkingDir(),
-            'phpVersion'            => $this->project->getPhpOptions()->getVersion(),
-        ];
+        if($this->project->hasMailhog()) {
+            $data = [
+                'phpVersion'            => $this->project->getPhpOptions()->getVersion(),
+                'projectName'           => strtolower($this->project->getGlobalOptions()->getProjectName()),
+            ];
 
-        return $this->twig->render('www.conf.twig', $data);
+            return $this->twig->render('mail.hog.twig', $data);
+        }
+        return '';
     }
 
     public function getFilename(): string
     {
-        return  sprintf(
-            '.docker%sconf%swww.conf',
-            DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR,
-        );
+        return 'app/_config/devmail.yml';
     }
 }

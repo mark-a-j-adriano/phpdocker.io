@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * Copyright 2021 Luis Alberto Pabón Flores
@@ -23,7 +24,7 @@ use App\PHPDocker\Interfaces\GeneratedFileInterface;
 use App\PHPDocker\Project\Project;
 use Twig\Environment;
 
-class WebConf implements GeneratedFileInterface
+class GitExclude implements GeneratedFileInterface
 {
     public function __construct(private Environment $twig, private Project $project)
     {
@@ -32,19 +33,15 @@ class WebConf implements GeneratedFileInterface
     public function getContents(): string
     {
         $data = [
-            'dockerWorkingDir'      => $this->project->getGlobalOptions()->getDockerWorkingDir(),
             'phpVersion'            => $this->project->getPhpOptions()->getVersion(),
+            'projectName'           => strtolower($this->project->getGlobalOptions()->getProjectName()),
         ];
 
-        return $this->twig->render('www.conf.twig', $data);
+        return $this->twig->render('git.exclude.twig', $data);
     }
 
     public function getFilename(): string
     {
-        return  sprintf(
-            '.docker%sconf%swww.conf',
-            DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR,
-        );
+        return '.git/info/exclude';
     }
 }

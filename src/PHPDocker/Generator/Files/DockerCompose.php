@@ -60,9 +60,6 @@ class DockerCompose implements GeneratedFileInterface
             ->addElasticsearch()
             ->addUbuntuServer();
 
-
-
-
         $data = [
             'version'  => self::DOCKER_COMPOSE_FILE_VERSION,
             'services' => $this->services,
@@ -332,7 +329,7 @@ class DockerCompose implements GeneratedFileInterface
     {
         $header = <<<TEXT
 ###############################################################################
-#                          Generated on phpdocker.io                          #
+#                          Generated on ss-php-docker.io                      #
 ###############################################################################
 
 TEXT;

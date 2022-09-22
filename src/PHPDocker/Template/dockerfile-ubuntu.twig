@@ -19,15 +19,10 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private
 COPY snippets/self-signed.conf /etc/nginx/snippets/self-signed.conf
 COPY snippets/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
 
-# Additional PHP version configuration
+# Additional NGINX/PHP version configuration
 COPY conf/www.conf /etc/php/{{ phpVersion }}/fpm/pool.d/www.conf
-RUN sed -i "s/phpX.Y-fpm.sock/php{{ phpVersion }}-fpm.sock/g" /etc/php/{{ phpVersion }}/fpm/pool.d/www.conf
-
-# Additional NGINX version configuration
 COPY conf/nginx.conf /etc/nginx/sites-available/default
-RUN sed -i "s/local.site/${SITE_URL}/g" /etc/nginx/sites-available/default && \
-    sed -i "s/current-working-directory/{{ dockerWorkingDir }}/g" /etc/nginx/sites-available/default && \
-    sed -i "s/phpX.Y-fpm.sock/php{{ phpVersion }}-fpm.sock/g" /etc/nginx/sites-available/default
+RUN sed -i "s/local.site/${SITE_URL}/g" /etc/nginx/sites-available/default
 
 # Switch to PHP {{ phpVersion }}
 RUN sudo update-alternatives --set php /usr/bin/php{{ phpVersion }}

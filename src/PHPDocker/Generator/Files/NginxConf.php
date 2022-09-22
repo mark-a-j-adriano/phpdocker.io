@@ -31,12 +31,9 @@ class NginxConf implements GeneratedFileInterface
 
     public function getContents(): string
     {
-        $frontControllerPath = $this->project->getPhpOptions()->getFrontControllerPath();
-
         $data = [
             'dockerWorkingDir'      => $this->project->getGlobalOptions()->getDockerWorkingDir(),
-            'frontControllerFile'   => basename($frontControllerPath),
-            'frontControllerFolder' => dirname($frontControllerPath),
+            'phpVersion'            => $this->project->getPhpOptions()->getVersion(),
         ];
 
         return $this->twig->render('nginx.conf.twig', $data);

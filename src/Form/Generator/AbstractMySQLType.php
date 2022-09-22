@@ -83,7 +83,7 @@ abstract class AbstractMySQLType extends AbstractGeneratorType
             ->add('databaseName', TextType::class, [
                 'label'       => 'DB name',
                 'attr'        => ['placeholder' => 'Your app\'s database name'],
-                'data'        => 'SSmysite',
+                'data'        => 'SS_mysite',
                 'constraints' => $defaultConstraints,
             ])
             ->add('rootPassword', TextType::class, [

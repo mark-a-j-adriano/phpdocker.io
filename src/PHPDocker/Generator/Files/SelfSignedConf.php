@@ -45,7 +45,7 @@ class SelfSignedConf implements GeneratedFileInterface
     public function getFilename(): string
     {
         return  sprintf(
-            '.docker%ssnippets%swww.conf',
+            '.docker%ssnippets%sself-signed.conf',
             DIRECTORY_SEPARATOR,
             DIRECTORY_SEPARATOR,
         );
