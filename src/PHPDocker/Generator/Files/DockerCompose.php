@@ -56,8 +56,7 @@ class DockerCompose implements GeneratedFileInterface
             ->addMailhog()
             ->addMysql()
             ->addElasticsearch()
-            ->addWebserver()
-            ->addPhpFpm();
+            ->addUbuntuServer();
 
         // Add Network
         $this->addNetwork();
@@ -141,10 +140,10 @@ class DockerCompose implements GeneratedFileInterface
                     $this->projectName
                 ]
             ];
-        }
 
-        if ($this->isM1Chip) {
-            $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+            if ($this->isM1Chip) {
+                $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+            }
         }
 
         return $this;
@@ -173,10 +172,10 @@ class DockerCompose implements GeneratedFileInterface
                     $this->projectName
                 ]
             ];
-        }
 
-        if ($this->isM1Chip) {
-            $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+            if ($this->isM1Chip) {
+                $this->services[$serviceName] += ['platform' => 'linux/amd64'];
+            }
         }
 
         return $this;
@@ -243,6 +242,31 @@ class DockerCompose implements GeneratedFileInterface
             if ($this->isM1Chip) {
                 $this->services[$serviceName] += ['platform' => 'linux/amd64'];
             }
+        }
+
+        return $this;
+    }
+
+    private function addUbuntuServer(): self
+    {
+        $shortVersion = str_replace(search: '.x', replace: '', subject: $this->project->getPhpOptions()->getVersion());
+        $serviceName = sprintf('%s-www', $this->projectName);
+
+        $this->services[$serviceName] = [
+            'build'       => '.docker/php-fpm',
+            'container_name' => $serviceName,
+            'working_dir' => $this->project->getGlobalOptions()->getDockerWorkingDir(),
+            'volumes'     => [
+                $this->defaultVolume,
+                sprintf('./.docker/%s:/etc/php/%s/fpm/conf.d/99-overrides.ini', $this->phpIniLocation, $shortVersion),
+            ],
+            'networks'  => [
+                $this->projectName
+            ]
+        ];
+
+        if ($this->isM1Chip) {
+            $this->services[$serviceName] += ['platform' => 'linux/amd64'];
         }
 
         return $this;

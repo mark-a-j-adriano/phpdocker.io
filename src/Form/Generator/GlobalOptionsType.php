@@ -43,7 +43,7 @@ final class GlobalOptionsType extends AbstractGeneratorType
                 'label'       => 'NFS Mount version',
                 'data'        => 0,
                 'choices'  => [
-                    '0' => null,
+                    '0' => 0,
                     'v3' => 3,
                     'v4' => 4,
                 ],

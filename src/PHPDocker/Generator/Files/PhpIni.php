@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /*
  * Copyright 2021 Luis Alberto Pabón Flores
@@ -20,7 +21,6 @@ declare(strict_types=1);
 namespace App\PHPDocker\Generator\Files;
 
 use App\PHPDocker\Interfaces\GeneratedFileInterface;
-use App\PHPDocker\Project\Project;
 use Twig\Environment;
 
 class PhpIni implements GeneratedFileInterface
@@ -37,6 +37,10 @@ class PhpIni implements GeneratedFileInterface
 
     public function getFilename(): string
     {
-        return 'php-fpm' . DIRECTORY_SEPARATOR . 'php-ini-overrides.ini';
+        return  sprintf(
+            '.docker%sphp%sphp-ini-overrides.ini',
+            DIRECTORY_SEPARATOR,
+            DIRECTORY_SEPARATOR
+        );
     }
 }

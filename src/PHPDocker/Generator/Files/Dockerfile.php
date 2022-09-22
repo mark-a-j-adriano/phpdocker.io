@@ -25,8 +25,6 @@ use Twig\Environment;
 
 class Dockerfile implements GeneratedFileInterface
 {
-    private const FILENAME = 'php-fpm' . DIRECTORY_SEPARATOR . 'Dockerfile';
-
     public function __construct(private Environment $twig, private Project $project)
     {
     }
@@ -56,6 +54,9 @@ class Dockerfile implements GeneratedFileInterface
 
     public function getFilename(): string
     {
-        return self::FILENAME;
+        return  sprintf(
+            '.docker%sDockerfile',
+            DIRECTORY_SEPARATOR,
+        );
     }
 }
